@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -39,7 +40,9 @@ public class ContactListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact_list);
 
-
+        initListButton();
+        initMapButton();
+        initSettingsButton();
         initAddContactButton();
         initDeleteSwitch();
     }
@@ -98,6 +101,39 @@ public class ContactListActivity extends AppCompatActivity {
             }// if switch is on, delete button will be displayed
         });
     }
+
+
+    private void initListButton() {
+        ImageButton ibList = findViewById(R.id.imageButtonList);
+        ibList.setEnabled(false);
+    }
+
+    private void initSettingsButton() {
+        ImageButton ibList = findViewById(R.id.imageButtonSettings);
+        ibList.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent intent = new Intent(ContactListActivity.this, ContactSettingsActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+    }
+
+    private void initMapButton() {
+        ImageButton ibList = findViewById(R.id.imageButtonMap);
+        ibList.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent intent = new Intent(ContactListActivity.this, ContactMapActivity.class);
+                // checks whether the contact has an ID. If not, a message is posted for the user.
+                // If there is an ID, that ID is passed to the ContactMapActivity
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+            }
+        });
+    }
+
+
+
 }
 
 
