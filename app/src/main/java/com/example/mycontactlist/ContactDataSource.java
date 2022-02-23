@@ -4,7 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -43,6 +47,13 @@ public class ContactDataSource {
             initialValues.put("email", c.getEMail());
             initialValues.put("birthday",String.valueOf(c.getBirthday().getTimeInMillis()));
 
+            if (c.getPicture() != null) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                c.getPicture().compress(Bitmap.CompressFormat.PNG, 100, baos);
+                byte[] photo = baos.toByteArray();
+                initialValues.put("contactphoto", photo);
+            }
+
             didSucceed = database.insert("contact", null, initialValues) > 0;
         }
         catch (Exception e) {
@@ -66,8 +77,14 @@ public class ContactDataSource {
             updateValues.put("phonenumber", c.getPhoneNumber());
             updateValues.put("cellnumber", c.getCellNumber());
             updateValues.put("email", c.getEMail());
-            updateValues.put("birthday",
-                    String.valueOf(c.getBirthday().getTimeInMillis()));
+            updateValues.put("birthday", String.valueOf(c.getBirthday().getTimeInMillis()));
+
+            if (c.getPicture() != null) {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                c.getPicture().compress(Bitmap.CompressFormat.PNG, 100, baos);
+                byte[] photo = baos.toByteArray();
+                updateValues.put("contactphoto", photo);
+            }
 
             didSucceed = database.update("contact", updateValues, "_id=" + rowId, null) > 0;
         }
@@ -153,6 +170,7 @@ public class ContactDataSource {
         Contact contact = new Contact(); //returns contact obj instead of arrayList
         String query = "SELECT  * FROM contact WHERE _id =" + contactId; //where clause specifies id value to return
         Cursor cursor = database.rawQuery(query, null);
+
         //no while loop needed bc only one contact is returned
         //cursor moves to first record - if contact found, contact obj is populated
         if (cursor.moveToFirst()) {
@@ -168,6 +186,14 @@ public class ContactDataSource {
             Calendar calendar = Calendar.getInstance();
             calendar.setTimeInMillis(Long.valueOf(cursor.getString(9)));
             contact.setBirthday(calendar);
+
+            byte[] photo = cursor.getBlob(10);
+            if (photo != null) {
+                ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
+                Bitmap thePicture = BitmapFactory.decodeStream(imageStream);
+                contact.setPicture(thePicture);
+            }
+
             // if no contact retrieved, moveToFirst is false and contact will not populate
             cursor.close();
         }

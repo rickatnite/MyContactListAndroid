@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
@@ -87,7 +88,7 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/textContact"
@@ -108,11 +109,12 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
                 android:ems="14"
-                android:inputType="textPersonName"
                 android:hint="Enter Name"
+                android:imeOptions="actionNext"
+                android:inputType="textPersonName"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textContact"
-                android:imeOptions="actionNext"/>
+                app:layout_constraintEnd_toStartOf="@+id/imageContact"/>
 
             <TextView
                 android:id="@+id/textAddress"
@@ -133,11 +135,11 @@
                 android:layout_marginLeft="16dp"
                 android:layout_marginTop="8dp"
                 android:ems="16"
-                android:inputType="textCapWords"
                 android:hint="Enter Street Address"
+                android:imeOptions="actionNext"
+                android:inputType="textCapWords"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textAddress"
-                android:imeOptions="actionNext"/>
+                app:layout_constraintTop_toBottomOf="@+id/textAddress" />
 
             <EditText
                 android:id="@+id/editCity"
@@ -204,8 +206,8 @@
                 android:ems="8"
                 android:imeOptions="actionNext"
                 android:inputType="phone"
-                app:layout_constraintTop_toBottomOf="@id/textHome"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textHome" />
 
             <TextView
                 android:id="@+id/textCell"
@@ -226,8 +228,8 @@
                 android:ems="8"
                 android:imeOptions="actionNext"
                 android:inputType="phone"
-                app:layout_constraintTop_toBottomOf="@id/textCell"
-                app:layout_constraintStart_toStartOf="@+id/textCell" />
+                app:layout_constraintStart_toStartOf="@+id/textCell"
+                app:layout_constraintTop_toBottomOf="@id/textCell" />
 
             <TextView
                 android:id="@+id/textEMail"
@@ -249,8 +251,8 @@
                 android:layout_marginTop="8dp"
                 android:ems="16"
                 android:imeOptions="actionNext"
-                app:layout_constraintTop_toBottomOf="@id/textEMail"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/textEMail" />
 
             <TextView
                 android:id="@+id/textBDay"
@@ -284,6 +286,16 @@
                 android:text="Change"
                 app:layout_constraintBaseline_toBaselineOf="@id/textBirthday"
                 app:layout_constraintEnd_toEndOf="parent" />
+
+            <ImageButton
+                android:id="@+id/imageContact"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textContact"
+                app:srcCompat="@drawable/photoicon" />
 
 
         </androidx.constraintlayout.widget.ConstraintLayout>

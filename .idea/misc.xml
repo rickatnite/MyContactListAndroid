@@ -3,8 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable-anydpi/photoicon.xml" value="0.2245" />
         <entry key="app/src/main/res/layout/activity_contact_list.xml" value="0.23369565217391305" />
-        <entry key="app/src/main/res/layout/activity_contact_map.xml" value="0.165" />
+        <entry key="app/src/main/res/layout/activity_contact_map.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.2536231884057971" />
         <entry key="app/src/main/res/layout/simple_item_view.xml" value="0.2545289855072464" />
