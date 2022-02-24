@@ -52,7 +52,9 @@ public class ContactDataSource {
                 c.getPicture().compress(Bitmap.CompressFormat.PNG, 100, baos);
                 byte[] photo = baos.toByteArray();
                 initialValues.put("contactphoto", photo);
-            }
+            } // To store a bitmap to the database, it must first be converted to a byte array.
+            // This code uses standard objects in the Android SDK to do this conversion.
+            // After photo is converted, it is placed into the values to be updated.
 
             didSucceed = database.insert("contact", null, initialValues) > 0;
         }
@@ -187,11 +189,20 @@ public class ContactDataSource {
             calendar.setTimeInMillis(Long.valueOf(cursor.getString(9)));
             contact.setBirthday(calendar);
 
+            // load the Contact object with the picture. This does not need to be done in the
+            // getContacts method because the picture is not used by any activity that uses the
+            // whole set of contacts. Returning the picture from the database is essentially
+            // the reverse process from saving to the database
             byte[] photo = cursor.getBlob(10);
+            // The byte array is retrieved from the database and is then tested to determine if
+            // a picture has been stored. The 10 in the getBlob method is the index
+            // of the contactphoto field in the contact table
             if (photo != null) {
                 ByteArrayInputStream imageStream = new ByteArrayInputStream(photo);
                 Bitmap thePicture = BitmapFactory.decodeStream(imageStream);
                 contact.setPicture(thePicture);
+                // The conversion from byte array to Bitmap will cause a crash if no picture
+                // is stored. After the data has been converted, it is set in the Contact object.
             }
 
             // if no contact retrieved, moveToFirst is false and contact will not populate

@@ -38,9 +38,12 @@ import java.util.Calendar;
 public class MainActivity extends AppCompatActivity implements DatePickerDialog.SaveDateListener {
 
     private Contact currentContact;
+    // constants used below allow the method to respond to the permission that was asked for
     final int PERMISSION_REQUEST_PHONE = 102;
     final int PERMISSION_REQUEST_CAMERA = 103;
     final int PERMISSION_REQUEST_SMS = 104;
+    // this variable is an integer that is used to identify the response from the camera
+    // when it finishes. The value should be a large integer far from other built-in responses.
     final int CAMERA_REQUEST = 1888;
 
 
@@ -56,7 +59,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         initChangeDateButton();
         initTextChangedEvents();
         initSaveButton();
-        initCallFunction();
+        //initCallFunction();
         initImageButton();
         initMessagingFunction();
 
@@ -74,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
 
+    // add a listener to the phone number EditTexts for the press-and-hold user action
+    // this method will call a method to check the permission
     private void initCallFunction() {
         EditText editPhone = (EditText) findViewById(R.id.editHome);
         editPhone.setOnLongClickListener(new View.OnLongClickListener() {
@@ -97,6 +102,7 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
 
+    // method to check if the app has permission to use the phone
     private void checkPhonePermission(String phoneNumber) {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(MainActivity.this,
@@ -116,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
                                             PERMISSION_REQUEST_PHONE);
                                 }
                             }).show();
+
+                    // we need the ability to identify which permission is being requested.
+                    // The method onRequestPermissionsResult is executed anytime the app asks
+                    // for a permission from a user.
+
                         } else {
                             ActivityCompat.requestPermissions(MainActivity.this, new
                                     String[]{Manifest.permission.CALL_PHONE},
@@ -130,6 +141,8 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
     }
 
 
+    // check for a different permission in the switch case statement
+    // instead of doing something, we provide a message that the functionality is now available
     //@Override
     public void onRequestPermissionResult(int requestCode, @NonNull String permissions[],
                                           @NonNull int[] grantResults) {
@@ -168,26 +181,51 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
 
 
     public void takePhoto() {
+        // new intent is instantiated with a parameter that tells the system to open the camera
+        // in image capture mode. You do not have to check whether the camera is present.
+        // The manifest permission would not let the app run on the device if it has no camera
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // you want the activity to return a value to the app after it has completed, so you use
+        // the startActivityForResult method. The parameters are the new Intent and a static
+        // variable called CAMERA_REQUEST, an integer that is used to identify
+        // the response from the camera when it finishes
         startActivityForResult(cameraIntent, CAMERA_REQUEST);
     }
 
 
+    // receives a request code that was sent to the camera, a result code, and an intent that
+    // includes the data (the picture in this case) from the intent you started.
+    // This method is executed when the camera finishes
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CAMERA_REQUEST) {
-            if (resultCode == RESULT_OK) {
+        if (requestCode == CAMERA_REQUEST) { // is returned request code the one sent to the camera?
+            if (resultCode == RESULT_OK) { // Check if the camera returned with a picture.
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
+                // The data from the Intent is assigned to a variable declared as a Bitmap.
+                // The method .get("data") doesn’t specify a type of data to get from the extras,
+                // so it must be cast to Bitmap. After the photo is captured, it is displayed in the
+                // ImageButton, and the contact object’s picture attribute is set to hold the photo.
                 Bitmap scaledPhoto = Bitmap.createScaledBitmap(photo, 144, 144, true);
+                // The picture is scaled so that a consistent-size photo is displayed in the
+                // ImageButton. The parameters of this method are the picture to be scaled, the
+                // height and width to scale to in pixels, and whether a filter should be applied
+                // during the scaling operation. Generally, when scaling down, this filter has no
+                // effect but can change the result when scaling up.
                 ImageButton imageContact = (ImageButton) findViewById(R.id.imageContact);
                 imageContact.setImageBitmap(scaledPhoto);
                 currentContact.setPicture(scaledPhoto);
+                // add Bitmap variable and getters/setters to Contact object (Contact.java class)
             }
         }
     }
 
 
+    // the method that actually dials the phone number and check if permission has been granted
     private void callContact(String phoneNumber) {
+        // tells Android to use phone to make a call
         Intent intent = new Intent(Intent.ACTION_CALL);
+        // phone number to be called is passed to the intent as a uniform resource identifier (URI).
+        // A URI is similar to a uniform resource locator (URL), except that a URL identifies
+        // a location on the web, whereas a URI can be used to identify a local resource.
         intent.setData(Uri.parse("tel:" + phoneNumber));
         if (Build.VERSION.SDK_INT >= 23 &&
             ContextCompat.checkSelfPermission(getBaseContext(),
@@ -313,6 +351,18 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         editEmail.setEnabled(enabled);
         buttonChange.setEnabled(enabled);
         buttonSave.setEnabled(enabled);
+
+        // when editing is turned on, the call function works. in viewing mode, it does not.
+        // This is because you disabled the EditTexts in viewing mode to avoid making any
+        // accidental changes to the user’s information. To correct this, you need to modify the
+        // setForEditing method in MainActivity.java.
+
+        // An EditText has to be enabled to allow it to respond to a long-click event. This means
+        // that you cannot ever disable them. Delete the setEnabled lines of code associated with
+        // the editPhone and editCell variables. The problem with doing this is that now the phone
+        // number will be editable, even in viewing mode. To correct this problem, you need to set
+        // the inputType of the EditText to null when in viewing mode, and set it back to
+        // accepting phone numbers when in editing mode, using the below changes to if/else block
 
         if (enabled) {
             editName.requestFocus();
@@ -551,13 +601,16 @@ public class MainActivity extends AppCompatActivity implements DatePickerDialog.
         birthDay.setText(DateFormat.format("MM/dd/yyyy",
                 currentContact.getBirthday().getTimeInMillis()).toString());
 
+        // display the retrieved picture along with the rest of the contact’s data
         ImageButton picture = (ImageButton) findViewById(R.id.imageContact);
         if (currentContact.getPicture() != null) {
             picture.setImageBitmap(currentContact.getPicture());
         } else {
             picture.setImageResource(R.drawable.photoicon);
         }
-
+        // gets a reference to the ImageButton on the layout and checks if the contact has a picture.
+        // If there is a picture, it sets it as the button’s image.
+        // If not, the default image resource is displayed.
 
     }
 

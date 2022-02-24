@@ -59,6 +59,7 @@ public class ContactMapActivity extends AppCompatActivity implements OnMapReadyC
     final int PERMISSION_REQUEST_LOCATION = 101; // declares a constant to identify the permission that is being requested
     GoogleMap gMap;
     SensorManager sensorManager;
+    //Monitoring sensors requires a SensorManager object and Sensor objects for each sensor used
     Sensor accelerometer;
     Sensor magnetometer;
     TextView textDirection;
@@ -105,16 +106,26 @@ public class ContactMapActivity extends AppCompatActivity implements OnMapReadyC
         // The map is retrieved asynchronously, then onMapReady() method is executed and we can begin working with the map.
 
 
+        // This code gets the references to the sensors and registers them to
+        // activate a SensorEventListener object when they report changes
+
+        // SensorManager is a system service, so you get a reference to it rather
+        // than instantiate it. The SensorManager is used to get
+        // references to the two sensors used to measure the heading.
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
+        // since not all devices have all sensors, you test whether the sensor is available so
+        // there is no crash if there is no sensor. If the sensors are present, the SensorManager
+        // associates each with the same event listener and passes a parameter,
+        // indicating how frequently sensor events should be processed.
         if (accelerometer != null && magnetometer != null) {
             sensorManager.registerListener(mySensorEventListener, accelerometer,
                     SensorManager.SENSOR_DELAY_FASTEST);
             sensorManager.registerListener(mySensorEventListener, magnetometer,
                     SensorManager.SENSOR_DELAY_FASTEST);
-        } else {
+        } else { // toast msg if no sensors
             Toast.makeText(this, "Sensors not found", Toast.LENGTH_LONG).show();
         }
         textDirection = (TextView) findViewById(R.id.textHeading);
@@ -435,34 +446,49 @@ public class ContactMapActivity extends AppCompatActivity implements OnMapReadyC
     }
 
 
-
+ // handles the actual events from the sensors and takes action on them
+    // requires the implementation of two events, onAccuracyChanged and onSensorChanged
+ // To calculate a heading, you don’t need accuracy, so its method block is empty
     private SensorEventListener mySensorEventListener = new SensorEventListener() {
         //@Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) { }
 
+     // sensor readings are returned as a float array.
+     // Two variables to hold the response from each sensor are declared.
         float[] accelerometerValues;
         float[] magneticValues;
 
         //@Override
         public void onSensorChanged(SensorEvent event) {
+            // onSensorEvent first determines which sensor triggered the event
+            // and then captures the values it provided
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
                 accelerometerValues = event.values;
             if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
                 magneticValues = event.values;
+            // If there are values available for both sensors, the SensorManager is asked for
+            // two rotational matrices used for orientation calculation
             if (accelerometerValues != null && magneticValues != null) {
                 float R[] = new float[9];
                 float I[] = new float[9];
 
                 boolean success = SensorManager.getRotationMatrix(R, I,
                         accelerometerValues, magneticValues);
+                // If the matrices are successfully calculated, the SensorManager is asked to
+                // calculate the orientation of the device, measured in three dimensions
                 if (success) {
                     float orientation[] = new float[3];
                     SensorManager.getOrientation(R, orientation);
 
+                    // the value used to calculate the heading, and radians are changed to degrees
                     float azimut = (float) Math.toDegrees(orientation[0]);
+                    // Convert the heading reported to eliminate negative numbers
                     if (azimut < 0.0f) {
                         azimut += 360.0f;
                     }
+                    // Use degree heading to get text description.
+                    // These are done in 90-degree increments.
+                    // You could add more code to get finer gradations of direction, like NW or SE
                     String direction;
                     if (azimut >= 315 || azimut < 45) {
                         direction = "N";

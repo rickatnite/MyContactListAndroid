@@ -50,18 +50,38 @@ public class ContactListActivity extends AppCompatActivity {
         initAddContactButton();
         initDeleteSwitch();
 
+        // BroadcastReceiver receives Intents and has the code used to respond to the Intent.
+        // An Intent is broadcast from other apps or objects executing on the device.
         BroadcastReceiver batteryReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                // The Intent concerning battery status sent by the OS contains information
+                // about the battery as Extras. This line gets the extra associated with the
+                // battery’s current charge level. Although the value is retrieved as an integer,
+                // it is assigned to a double variable so that it can be used as a double later.
                 double batteryLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+                // The extra associated with the scale used for measuring the charge is retrieved
+                // and assigned to a double variable. Capturing the scale is important because
+                // different devices may use different scales for measuring the charge.
                 double levelScale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 0);
+                // The percentage of battery charge left is calculated by dividing the level
+                // by the scale. If these two variables were not defined as doubles, this
+                // calculation would produce incorrect results because a divide operation needs
+                // to produce a double value. The result of the calculation is a number
+                // between 0 and 1, which is multiplied by 100 to get a percentage. The floor
+                // function is applied to take on the integer value of the result.
                 int batteryPercent = (int) Math.floor(batteryLevel / levelScale * 100);
                 TextView textBatteryState = (TextView) findViewById(R.id.textBatteryLevel);
                 textBatteryState.setText(batteryPercent + "%");
             }
         };
-
+        // this IntentFilter listens for Intents that have been broadcast by the system and only
+        // lets through the ones the developer is looking for. In this case, the filter looks for
+        // Battery Status changed intent. This is required because a BroadcastReceiver can respond
+        // to any intent. However, you want it to respond only to Intents sent by the battery.
         IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+        // BroadcastReceiver is registered, which means that the app is told to listen for battery
+        // status intents and handle them with the BroadcastReceiver defined in the activity.
         registerReceiver(batteryReceiver, filter);
 
     }
